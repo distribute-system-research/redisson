@@ -1,5 +1,6 @@
 package com.wentong.redisson;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -21,9 +22,17 @@ public abstract class BaseTest {
 
     public static Config createConfig() {
         Config config = new Config();
-        config.useSingleServer()
-                .setAddress("redis://127.0.0.1:6379");
+        config.setLockWatchdogTimeout(1000_000);
+        config.useSingleServer().setAddress("redis://127.0.0.1:6379");
         return config;
     }
 
+    @AfterEach
+    public void afterEach() {
+        if (flushAfterExec()) {
+            redisson.getKeys().flushall();
+        }
+    }
+
+    public abstract boolean flushAfterExec();
 }
